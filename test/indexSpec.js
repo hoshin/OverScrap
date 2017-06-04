@@ -11,11 +11,28 @@ describe('Overwatch stats parser', () => {
   })
 
   describe('loadDataFromProfile', () => {
+    let getHeroListForGameModeStub
+    let getHeroStatsForGameModeStub
+    let getRequestStub
+
+
+    beforeEach(() => {
+      getHeroListForGameModeStub = sinon.stub(overScrap, 'getHeroListForGameMode')
+      getHeroStatsForGameModeStub = sinon.stub(overScrap, 'getHeroStatsForGameMode')
+      getRequestStub = sinon.stub(request, 'get')
+    })
+
+    afterEach(() => {
+      overScrap.getHeroListForGameMode.restore()
+      overScrap.getHeroStatsForGameMode.restore()
+      request.get.restore()
+    })
+
     it('should request the correct playoverwatch page', done => {
       // setup
-      sinon.stub(request, 'get').returns(Promise.resolve({}))
-      sinon.stub(overScrap, 'getHeroListForGameMode').returns(Promise.resolve([{ a: 'b' }]))
-      sinon.stub(overScrap, 'getHeroStatsForGameMode').returns({})
+      getRequestStub.returns(Promise.resolve({}))
+      getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]))
+      getHeroStatsForGameModeStub.returns({})
       // action
       overScrap.loadDataFromProfile('tag#number', 'foo', 'bar')
       .then(() => {
@@ -24,15 +41,9 @@ describe('Overwatch stats parser', () => {
         assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[1], 'bar')
         assert.deepEqual(overScrap.getHeroStatsForGameMode.getCall(0).args[0], [{ a: 'b' }])
         assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[2], 'bar')
-        overScrap.getHeroListForGameMode.restore()
-        overScrap.getHeroStatsForGameMode.restore()
         done()
       })
-      .catch(err => {
-        overScrap.getHeroListForGameMode.restore()
-        overScrap.getHeroStatsForGameMode.restore()
-        done(err)
-      })
+      .catch(done)
     })
 
     it('should reject w/ an error if tag looks incomplete (no "#" separator)', done => {
@@ -46,6 +57,37 @@ describe('Overwatch stats parser', () => {
       .catch(err => {
         // assert
         assert.equal(err.message, 'Invalid tag')
+        done()
+      })
+      .catch(done)
+    })
+
+    it('should consider that region is `eu` if none is provided', done => {
+      // setup
+      getRequestStub.returns(Promise.resolve({}))
+      getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]))
+      getHeroStatsForGameModeStub.returns({})
+      // action
+      overScrap.loadDataFromProfile('tag#number', null, 'bar')
+      .then(() => {
+        // assert
+        sinon.assert.calledWithExactly(request.get, { uri: 'https://playoverwatch.com/en-us/career/pc/eu/tag-number' })
+        done()
+      })
+      .catch(done)
+    })
+
+    it('should consider that game mode is `competitive` if none is provided', done => {
+      // setup
+      getRequestStub.returns(Promise.resolve({}))
+      getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]))
+      getHeroStatsForGameModeStub.returns({})
+      // action
+      overScrap.loadDataFromProfile('tag#number', 'foo')
+      .then(() => {
+        // assert
+        assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[1], 'competitive')
+        assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[2], 'competitive')
         done()
       })
       .catch(done)

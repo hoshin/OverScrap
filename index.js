@@ -3,6 +3,9 @@ import Promise from 'bluebird'
 import request from 'request-promise'
 import _ from 'lodash'
 
+const DEFAULT_REGION='eu'
+const DEFAULT_GAME_MODE='competitive'
+
 class OverScrap {
   getCategoryName (statsCategories, statKey) {
     const getStatTitleTopElement = () => {
@@ -88,18 +91,19 @@ class OverScrap {
     })
   }
 
-  loadDataFromProfile (tag, region, mode) {
+  loadDataFromProfile (tag, region, gameMode) {
     const tagSplit = tag.split('#')
     if (tagSplit.length < 2) {
       return Promise.reject(new Error('Invalid tag'))
     }
     return request.get({
-      uri: `https://playoverwatch.com/en-us/career/pc/${region}/${tagSplit[0]}-${tagSplit[1]}`
+      uri: `https://playoverwatch.com/en-us/career/pc/${region || DEFAULT_REGION}/${tagSplit[0]}-${tagSplit[1]}`
     })
     .then(dom => {
+      const actualGameMode = gameMode || DEFAULT_GAME_MODE
       const $ = cheerio.load(dom)
-      return this.getHeroListForGameMode($, mode)
-      .then(heroesList => this.getHeroStatsForGameMode(heroesList, $, mode))
+      return this.getHeroListForGameMode($, actualGameMode)
+      .then(heroesList => this.getHeroStatsForGameMode(heroesList, $, actualGameMode))
     })
   }
 }
