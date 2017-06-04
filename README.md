@@ -50,7 +50,7 @@ The stats collected also include the `All heroes` section (as seen on the origin
 
 ### As a lib in a nodejs app
 ```$javascript
-import OverScrap from 'overscrap'
+import OverScrap from 'over-scrap'
 
 const overscrap = new OverScrap();
 
