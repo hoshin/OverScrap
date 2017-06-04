@@ -1,14 +1,15 @@
+/*global it describe beforeEach*/
 import { assert } from 'chai'
 import sinon from 'sinon'
 import request from 'request-promise'
 import OverScrap from '../index'
-import _ from 'lodash'
 
 describe('Overwatch stats parser', () => {
   let overScrap
   beforeEach(() => {
     overScrap = new OverScrap()
   })
+
   describe('loadDataFromProfile', () => {
     it('should request the correct playoverwatch page', done => {
       // setup
@@ -129,7 +130,7 @@ describe('Overwatch stats parser', () => {
     it('should return null if statsCategories array is empty', () => {
       // setup
       // action
-      const actual = overScrap.computeStatsByHero({name:'foo'}, [])
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [])
       // assert
       assert.equal(actual, null)
     })
@@ -141,15 +142,56 @@ describe('Overwatch stats parser', () => {
       // assert
       assert.equal(actual, null)
     })
+
+    it('should return hero stats data aggregated by categories if hero has a name and stats', () => {
+      // setup
+      sinon.stub(overScrap, 'getCategoryName').returns('CustomCategory')
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{ children: [{}, { children: [{ children: [{ children: [{ data: 'bar' }] }, { children: [{ data: 'baz' }] }] }] }] }])
+      // assert
+      assert.deepEqual(actual, { name: 'foo', stats: { CustomCategory: { bar: 'baz' } } })
+    })
   })
-  // describe('getHeroStatsForGameMode', () => {
-  //   it('should reject if provided DOM does not contain the section related to the game mode', done => {
-  //     // setup
-  //
-  //     // action
-  //     overScrap.getHeroStatsForGameMode([])
-  //     // assert
-  //
-  //   })
-  // })
+
+  describe('getHeroStatsForGameMode', () => {
+    it('should reject if at least one hero stats computation fails', done => {
+      // setup
+      sinon.stub(overScrap, 'computeStatsByHero').throws(new Error('Could not parse hero data'))
+      // action
+      overScrap.getHeroStatsForGameMode([{}], () => {
+        return {
+          toArray: () => {
+            return []
+          }
+        }
+      })
+      .then(() => {
+        done(new Error('We should reject if there was a single error parsing the document'))
+      })
+      .catch(err => {
+        // assert
+        assert.equal(err.message, 'Could not parse hero data')
+        done()
+      })
+    })
+
+    it('should resolve w/ hero stats mapped by hero name', done => {
+      // setup
+      sinon.stub(overScrap, 'computeStatsByHero').returns({ name: 'foo', stats: { bar: 'baz' } })
+      // action
+      overScrap.getHeroStatsForGameMode([{}], () => {
+        return {
+          toArray: () => {
+            return []
+          }
+        }
+      })
+      .then(data => {
+        // assert
+        assert.deepEqual(data, { foo: { bar: 'baz' } })
+        done()
+      })
+      .catch(done)
+    })
+  })
 })

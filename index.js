@@ -5,28 +5,47 @@ import _ from 'lodash'
 
 
 class OverScrap {
-  getCategoryName (statsCategories, sectionKey) {
-    const categoryStatTitleChildren = _.get(statsCategories, `[${sectionKey}].children[0].children[0].children[0].children`)
+  getCategoryName (statsCategories, statKey) {
+    const getStatTitleTopElement = () => {
+      return _.get(statsCategories, `[${statKey}].children[0].children[0].children[0].children`)
+    }
+    const extractStatName = () => {
+      return _.get(categoryStatTitleChildren.filter(child => {
+        return child.name === 'span' && child.attribs.class === 'stat-title'
+      }), '[0].children[0].data')
+    }
+
+    const categoryStatTitleChildren = getStatTitleTopElement()
     if (!categoryStatTitleChildren) {
       return 'Unknown'
     }
-    return _.get(categoryStatTitleChildren.filter(child => {
-      return child.name === 'span' && child.attribs.class === 'stat-title'
-    }), '[0].children[0].data')
+
+    return extractStatName()
   }
 
   computeStatsByHero (hero, statsCategories) {
+    const getStatsInCategoryForHero = statKey => {
+      return _.get(statsCategories, `[${statKey}].children[1].children`, [])
+    }
+    const getStatName = statCategory => {
+      return statCategory.children[0].children[0].data
+    }
+    const getStatValue = statCategory => {
+      return statCategory.children[1].children[0].data
+    }
+
     if (!statsCategories.length || !hero.name) {
       return null
     }
+
     return {
       name: hero.name,
       stats: statsCategories
-      .reduce((statsCategoryByHero, stat, sectionKey) => {
-        statsCategoryByHero[this.getCategoryName(statsCategories, sectionKey)] =
-            _.get(statsCategories, `[${sectionKey}].children[1].children`, [])
+      .reduce((statsCategoryByHero, stat, statKey) => {
+        statsCategoryByHero[this.getCategoryName(statsCategories, statKey)] =
+            getStatsInCategoryForHero(statKey)
             .reduce((singleStatsByHero, statCategory) => {
-              singleStatsByHero[statCategory.children[0].children[0].data] = statCategory.children[1].children[0].data
+              singleStatsByHero[getStatName(statCategory)] = getStatValue(statCategory)
               return singleStatsByHero
             }, {})
         return statsCategoryByHero
@@ -35,9 +54,12 @@ class OverScrap {
   }
 
   getHeroListForGameMode ($, gameMode) {
+    const getHeroListForPlayerAndGameMode = () => {
+      return $(`div#${gameMode} section div [data-js="career-select"][data-group-id="stats"]`)[0].children
+    }
     return new Promise((resolve, reject) => {
       try {
-        const heroList = $(`div#${gameMode} section div [data-js="career-select"][data-group-id="stats"]`)[0].children
+        const heroList = getHeroListForPlayerAndGameMode()
         .map(option => ({
           id: option.attribs.value,
           name: option.attribs['option-id']
@@ -52,8 +74,12 @@ class OverScrap {
   // no specific error handling if computeStatsByHero fails, as it'd mean
   // that the hero listing is not consistent w/ the available data
   getHeroStatsForGameMode (heroes, $, gameMode) {
+    const getStatsContainerForHeroAndGameMode = hero => {
+      return $(`div#${gameMode} section div [data-group-id="stats"][data-category-id="${hero.id}"] div div.card-stat-block table.data-table`).toArray()
+    }
+
     return Promise.map(heroes, hero => {
-      return this.computeStatsByHero(hero, $(`div#${gameMode} section div [data-group-id="stats"][data-category-id="${hero.id}"] div div.card-stat-block table.data-table`).toArray())
+      return this.computeStatsByHero(hero, getStatsContainerForHeroAndGameMode(hero))
     })
     .then(data => {
       return data.reduce((acc, hero) => {
