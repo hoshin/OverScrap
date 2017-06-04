@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel-core/register --recursive ./test ",
+    "lint": "./node_modules/.bin/eslint --ignore-pattern=qualimetry .",
+    "coverage": "istanbul cover _mocha --dir qualimetry/coverage -- --compilers js:babel-core/register -R spec --recursive"
   },
   "author": "Martin Bahier",
   "license": "MIT",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "chai": "^4.0.1",
+    "eslint": "^3.19.0",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.4.2",
     "sinon": "^2.3.2"
