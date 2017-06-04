@@ -3,7 +3,6 @@ import Promise from 'bluebird'
 import request from 'request-promise'
 import _ from 'lodash'
 
-
 class OverScrap {
   getCategoryName (statsCategories, statKey) {
     const getStatTitleTopElement = () => {
@@ -55,7 +54,7 @@ class OverScrap {
 
   getHeroListForGameMode ($, gameMode) {
     const getHeroListForPlayerAndGameMode = () => {
-      return $(`div#${gameMode} section div [data-js="career-select"][data-group-id="stats"]`)[0].children
+      return $(`div#${gameMode} section div div [data-js="career-select"][data-group-id="stats"]`)[0].children
     }
     return new Promise((resolve, reject) => {
       try {
@@ -104,6 +103,5 @@ class OverScrap {
     })
   }
 }
-
 
 module.exports = OverScrap
