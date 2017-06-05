@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/hoshin/OverScrap/issues"
   },
-  "main": "index.js",
+  "main": "dist/overScrap.min.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --recursive ./test ",
     "lint": "./node_modules/.bin/eslint .",
