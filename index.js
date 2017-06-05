@@ -3,8 +3,8 @@ import Promise from 'bluebird'
 import request from 'request-promise'
 import _ from 'lodash'
 
-const DEFAULT_REGION='eu'
-const DEFAULT_GAME_MODE='competitive'
+const DEFAULT_REGION = 'eu'
+const DEFAULT_GAME_MODE = 'competitive'
 
 class OverScrap {
   getCategoryName (statsCategories, statKey) {
@@ -91,6 +91,16 @@ class OverScrap {
     })
   }
 
+  appendProfileData ($, heroesStats) {
+    const currentSR = $('div.competitive-rank div').first().text()
+    return new Promise(resolve => {
+      resolve({
+        profile: { currentSR },
+        heroesStats
+      })
+    })
+  }
+
   loadDataFromProfile (tag, region, gameMode) {
     const tagSplit = tag.split('#')
     if (tagSplit.length < 2) {
@@ -104,6 +114,7 @@ class OverScrap {
       const $ = cheerio.load(dom)
       return this.getHeroListForGameMode($, actualGameMode)
       .then(heroesList => this.getHeroStatsForGameMode(heroesList, $, actualGameMode))
+      .then(heroesStats => this.appendProfileData($, heroesStats))
     })
   }
 }

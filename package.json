@@ -14,7 +14,7 @@
     "build": "babel ./index.js -o ./dist/overScrap.js && ./node_modules/uglify-js/bin/uglifyjs ./dist/overScrap.js -c -m -o ./dist/overScrap.min.js",
     "coverage": "istanbul cover _mocha --dir qualimetry/coverage -- --compilers js:babel-core/register -R spec --recursive",
     "publish-patch": "npm version patch && git push && npm publish",
-    "publish-minor": "npm version minor && git push && npm publish",
+    "publish-minor": "npm version minor && npm publish",
     "publish-major": "npm version major && git push && npm publish",
     "preversion": "npm run lint && npm test",
     "version": "npm run build && git add dist/overScrap.min.js",

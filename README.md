@@ -11,7 +11,20 @@ Note : this is still hugely WIP but, provided it is transpiled, it should be use
 
 ## What does the scrapped data look like?
 
-Here's an example for one character
+The general structure of the file is as follows : 
+
+```$json
+{
+    profile:{
+        currentSR:<current profile's SR>
+    }
+    heroesStats:{
+        <stats broken down by hero + 'All heroes'>
+    }
+}
+```
+
+Here's an example for one character in the `heroesStats` section
 ```$json
 {
 ...

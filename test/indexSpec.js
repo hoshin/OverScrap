@@ -15,7 +15,6 @@ describe('Overwatch stats parser', () => {
     let getHeroStatsForGameModeStub
     let getRequestStub
 
-
     beforeEach(() => {
       getHeroListForGameModeStub = sinon.stub(overScrap, 'getHeroListForGameMode')
       getHeroStatsForGameModeStub = sinon.stub(overScrap, 'getHeroStatsForGameMode')
@@ -88,6 +87,41 @@ describe('Overwatch stats parser', () => {
         // assert
         assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[1], 'competitive')
         assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[2], 'competitive')
+        done()
+      })
+      .catch(done)
+    })
+  })
+
+  describe('appendProfileData', () => {
+    it('should append the player\'s SR to the `profile` property if present', done => {
+      // setup
+      const heroesStats = {}
+      const domLookup = sinon.stub().returns({ first: sinon.stub().returns({ text: sinon.stub().returns('42') }) })
+      // action
+      overScrap.appendProfileData(domLookup, heroesStats)
+      .then(stats => {
+        // assert
+        assert.equal(domLookup.calledOnce, true)
+        sinon.assert.calledWithExactly(domLookup, 'div.competitive-rank div')
+        assert.equal(stats.profile.currentSR, '42')
+        done()
+      })
+      .catch(done)
+    })
+
+    it('should return an object with separated player profile & hero stats data', done => {
+      // setup
+      const heroesStats = { hero1: { stat: 1 }, hero2: { stat: 2 } }
+      const domLookup = sinon.stub().returns({ first: sinon.stub().returns({ text: sinon.stub().returns('42') }) })
+      // action
+      overScrap.appendProfileData(domLookup, heroesStats)
+      .then(dataToReturn => {
+        // assert
+        assert.deepEqual(dataToReturn, {
+          profile: { currentSR: '42' },
+          heroesStats: { hero1: { stat: 1 }, hero2: { stat: 2 } }
+        })
         done()
       })
       .catch(done)
