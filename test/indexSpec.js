@@ -1,4 +1,4 @@
-/*global it describe beforeEach*/
+/*global it describe beforeEach afterEach*/
 import { assert } from 'chai'
 import sinon from 'sinon'
 import request from 'request-promise'

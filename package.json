@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --recursive ./test ",
-    "lint": "./node_modules/.bin/eslint --ignore-pattern=qualimetry .",
+    "lint": "./node_modules/.bin/eslint .",
     "start": "./bin/overscrap-cli.js",
     "build": "babel ./index.js -o ./dist/overScrap.js && ./node_modules/uglify-js/bin/uglifyjs ./dist/overScrap.js -c -m -o ./dist/overScrap.min.js",
     "coverage": "istanbul cover _mocha --dir qualimetry/coverage -- --compilers js:babel-core/register -R spec --recursive",
