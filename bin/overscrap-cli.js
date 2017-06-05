@@ -11,7 +11,7 @@ if(process.argv.length < 3){
 var overScrap = new OverScrap();
 console.log(`Looking up data for ${process.argv[2]} on realm '${process.argv[3] || 'default'}' for the '${process.argv[4] || 'default'}' mode `)
 overScrap.loadDataFromProfile(process.argv[2], process.argv[3], process.argv[4]).then(data => {
-  console.log(data);
+  console.log(JSON.stringify(data, null, 2));
 })
 .catch(err => {
   console.log('Oops ... something went wrong.')
