@@ -132,7 +132,7 @@ class OverScrap {
                     statCategory[key] = parsedStatValue;
                   }
                 }
-              })
+              });
             });
           });
         return rawData;
