@@ -30,33 +30,35 @@ Here's an example for one character in the `heroesStats` section
 ...
   Pharah: 
    { 'Hero Specific': 
-      { 'Rocket Direct Hits': '12',
-        'Rocket Direct Hits - Most in Game': '12',
-        'Rocket Direct Hits - Average': '90.38' },
+      { 'Rocket Direct Hits': 12,
+        'Rocket Direct Hits - Most in Game': 12,
+        'Rocket Direct Hits - Average': 90.38 },
      Combat: 
-      { 'Shots Fired': '27',
-        'Shots Hit': '21',
-        'Damage Done': '2,287',
+      { 'Shots Fired': 27,
+        'Shots Hit': 21,
+        'Damage Done': 2287,
         'Weapon Accuracy': '77%' },
      Best: 
-      { 'Damage Done - Most in Life': '1,733',
+      { 'Damage Done - Most in Life': 1,733,
         'Weapon Accuracy - Best in Game': '77%',
-        'Damage Done - Most in Game': '2,287',
+        'Damage Done - Most in Game': 2,287,
         'Objective Time - Most in Game': '00:14' },
      Average: 
-      { 'Deaths - Average': '7.53',
+      { 'Deaths - Average': 7.53,
         'Objective Time - Average': '01:47',
-        'Damage Done - Average': '17,224.04' },
-     Deaths: { Death: '1', 'Environmental Death': '1' },
-     'Match Awards': { 'Medals - Silver': '0', 'Medals - Gold': '0', Medals: '1' },
+        'Damage Done - Average': 17224.04 },
+     Deaths: { Death: '1', 'Environmental Death': 1 },
+     'Match Awards': { 'Medals - Silver': 0, 'Medals - Gold': 0, Medals: 1 },
      Game: 
       { 'Time Played': '1 minute',
-        'Games Played': '0',
+        'Games Played': 0,
         'Objective Time': '00:14' },
-     Miscellaneous: { 'Games Lost': '0' } },
+     Miscellaneous: { 'Games Lost': 0 } },
 ...
 }
 ```
+Note that numerical values are parsed now, which removes the hassle of making your own conversions after the fact.
+
 The stats collected also include the `All heroes` section (as seen on the original page).
 
 ## How do I use it ?
