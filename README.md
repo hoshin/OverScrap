@@ -5,9 +5,17 @@ When getting a profile's stats, one can choose between regions & game mode, just
 
 Right now, the tool focuses on the `Career stats` section and can be used for the `quickplay` & `competitive` game modes for any region you wish
 
+With OverScrap, you get 2 versions of the same tool :
+1. The main lib that basically requests a profile page, parses it, and spits out the almost raw data it was sent (just converts ints & floats on the fly so the resulting JSON is a bit more easy to use, but does not touch anything else).
+2. A "server" mode that pops a server and allows for 2 behaviours w/ 2 distinct endpoints :
+** `/api` : Just the "I don't wanna configure a server myself" version of `1.`
+** `/graphql` : Injects some cool features like the ability to filter the data you want. Also regroups "Hero Specific" stats under the same section rather than having it scattered in different sections.
+
 Originally, I wrote this tool to allow me to track very specific stats (like my K/D ratio) without all the clutter existing applications provide
 
-Note : this is still hugely WIP but, provided it is transpiled, it should be useable on a small app. As Blizzard does not seem to allow cross-origin for playoverwatch.com, this probably means that the requesting will have to be done server-side before handing the parsed data over to a user-facing app.
+Notes : 
+* I'm figuring this as I go so there are probably issues I haven't yet seen, feel free to get in touch w/ me if you'd like sth added / reworked and I'll see what I can do =)
+* As Blizzard does not seem to allow cross-origin for playoverwatch.com, this probably means that the requesting will have to be done server-side before handing the parsed data over to a user-facing app.
 
 ## What does the scrapped data look like?
 

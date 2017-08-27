@@ -10,7 +10,7 @@ var _ = require('lodash');
 var Scrapper = require('../index');
 var schema = require('../graph/schema');
 
-var mockedData = require('../sampleData/example.json');
+var mockedData = require('../sampleData/example.json') || {};
 
 var scrapper = new Scrapper();
 
@@ -78,8 +78,7 @@ var OverScrapServer = function () {
               Miscelaneous: rawHeroStats.Miscelaneous
             };
           });
-        },
-        statByName: function statByName(options) {}
+        }
       },
       graphiql: true
     }));
@@ -102,7 +101,7 @@ var OverScrapServer = function () {
 
       if (!this.instance) {
         this.instance = this.server.listen(this.port, function () {
-          console.log('Server running on port:' + _this2.instance.address().port);
+          console.log('Server running on port:' + _this2.instance.address().port); // eslint-disable-line
         });
         return true;
       }
@@ -116,7 +115,7 @@ var OverScrapServer = function () {
       if (this.instance) {
         this.instance.close(function () {
           delete _this3.instance;
-          console.log('Server shutdown complete');
+          console.log('Server shutdown complete'); // eslint-disable-line
         });
         return true;
       }
