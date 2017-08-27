@@ -1,7 +1,7 @@
-import cheerio from 'cheerio';
-import Promise from 'bluebird';
-import request from 'request-promise';
-import _ from 'lodash';
+const cheerio = require('cheerio');
+const Promise = require('bluebird');
+const request = require('request-promise');
+const _ = require('lodash');
 
 const DEFAULT_REGION = 'eu';
 const DEFAULT_GAME_MODE = 'competitive';
@@ -102,8 +102,8 @@ class OverScrap {
   }
 
   loadRawFromProfile(tag, region, gameMode) {
-    const tagSplit = tag.split('#');
-    if (tagSplit.length < 2) {
+    let tagSplit;
+    if(!tag || (tagSplit = tag.split('#')).length < 2){
       return Promise.reject(new Error('Invalid tag'));
     }
     return request.get({
@@ -121,20 +121,20 @@ class OverScrap {
   loadDataFromProfile(tag, region, gameMode) {
     return this.loadRawFromProfile(tag, region, gameMode)
       .then(rawData => {
-          _.forEach( rawData.heroesStats, heroStats => {
-            _.forEach(heroStats, statCategory => {
-              _.forEach(statCategory, (statValue, key) => {
-                let parsedStatValue;
-                try {
-                  parsedStatValue = parseFloat(statValue.replace(/,/g, ''));
-                } finally {
-                  if (parsedStatValue || parsedStatValue === 0) {
-                    statCategory[key] = parsedStatValue;
-                  }
+        _.forEach(rawData.heroesStats, heroStats => {
+          _.forEach(heroStats, statCategory => {
+            _.forEach(statCategory, (statValue, key) => {
+              let parsedStatValue;
+              try {
+                parsedStatValue = parseFloat(statValue.replace(/,/g, ''));
+              } finally {
+                if (parsedStatValue || parsedStatValue === 0) {
+                  statCategory[key] = parsedStatValue;
                 }
-              });
+              }
             });
           });
+        });
         return rawData;
       });
   }

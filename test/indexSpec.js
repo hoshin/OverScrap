@@ -43,6 +43,20 @@ describe('Overwatch stats parser', () => {
         });
     });
 
+    it('should reject w/ an "Invalid Tag" error if there is no battle tag to parse', () => {
+      // setup
+
+      // action
+      return overScrap.loadRawFromProfile(undefined, 'foo', 'bar')
+        .then(() => {
+          assert.fail('using a wrongly formatted tag should reject');
+        })
+        .catch(err => {
+          // assert
+          assert.equal(err.message, 'Invalid tag');
+        });
+    });
+
     it('should reject w/ an error if tag looks incomplete (no "#" separator)', () => {
       // setup
 
