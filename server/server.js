@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Scrapper = require('../index');
 const schema = require('../graph/schema');
 
-const mockedData = require('../example.json');
+const mockedData = require('../sampleData/example.json') || {};
 
 const scrapper = new Scrapper();
 
@@ -80,8 +80,6 @@ class OverScrapServer {
               };
             });
         },
-        statByName: (options) => {
-        }
       },
       graphiql: true,
     }));
@@ -99,7 +97,7 @@ class OverScrapServer {
   start() {
     if (!this.instance) {
       this.instance = this.server.listen(this.port, () => {
-        console.log(`Server running on port:${this.instance.address().port}`);
+        console.log(`Server running on port:${this.instance.address().port}`); // eslint-disable-line
       });
       return true;
     }
@@ -110,7 +108,7 @@ class OverScrapServer {
     if (this.instance) {
       this.instance.close(() => {
         delete this.instance;
-        console.log('Server shutdown complete');
+        console.log('Server shutdown complete'); // eslint-disable-line
       });
       return true;
     }

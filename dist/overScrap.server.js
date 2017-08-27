@@ -10,7 +10,7 @@ var _ = require('lodash');
 var Scrapper = require('../index');
 var schema = require('../graph/schema');
 
-var mockedData = require('../example.json');
+var mockedData = require('../sampleData/example.json');
 
 var scrapper = new Scrapper();
 
