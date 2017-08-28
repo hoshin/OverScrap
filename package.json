@@ -1,6 +1,6 @@
 {
   "name": "over-scrap",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "playoverwatch.com data scrapper to get all the stats from a player profile into a JSON object",
   "homepage": "https://github.com/hoshin/OverScrap",
   "bugs": {
