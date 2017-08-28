@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const OverScrap = require('../dist/overScrap.min');
+process.env['OVERSCRAP_ENV'] = 'production';
 
 if(process.argv.length < 3){
   console.error('Not enough arguments')

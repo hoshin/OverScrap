@@ -3,3 +3,4 @@ node_modules
 qualimetry
 *.config.js
 dist/overScrap.js
+dist/overScrap.server.js
