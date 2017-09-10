@@ -19,88 +19,88 @@ const HeroSpecific = new GraphQLObjectType({
 const Combat = new GraphQLObjectType({
   name: 'Combat',
   fields: {
-    Eliminations: { type: GraphQLInt },
-    FinalBlows: { type: GraphQLInt },
-    SoloKills: { type: GraphQLInt },
-    AllDamageDone: { type: GraphQLInt },
-    ObjectiveKills: { type: GraphQLInt },
-    Multikills: { type: GraphQLInt },
-    EnvironmentalKill: { type: GraphQLInt },
-    EnvironmentalKills: { type: GraphQLInt },
-    EliminationsPerLife: { type: GraphQLFloat },
+    eliminations: { type: GraphQLInt },
+    finalBlows: { type: GraphQLInt },
+    soloKills: { type: GraphQLInt },
+    allDamageDone: { type: GraphQLInt },
+    objectiveKills: { type: GraphQLInt },
+    multikills: { type: GraphQLInt },
+    environmentalKill: { type: GraphQLInt },
+    environmentalKills: { type: GraphQLInt },
+    eliminationsPerLife: { type: GraphQLFloat },
   },
 });
 
 const Assists = new GraphQLObjectType({
   name: 'Assists',
   fields: {
-    TurretsDestroyed: { type: GraphQLInt },
-    OffensiveAssists: { type: GraphQLInt },
+    turretsDestroyed: { type: GraphQLInt },
+    offensiveAssists: { type: GraphQLInt },
   },
 });
 
 const Best = new GraphQLObjectType({
   name: 'Best',
   fields: {
-    EliminationsMostinLife: { type: GraphQLInt },
-    AllDamageDoneMostinLife: { type: GraphQLInt },
-    KillStreakBest: { type: GraphQLInt, },
-    AllDamageDoneMostinGame: { type: GraphQLInt, },
-    EliminationsMostinGame: { type: GraphQLInt, },
-    FinalBlowsMostinGame: { type: GraphQLInt, },
-    ObjectiveKillsMostinGame: { type: GraphQLInt, },
-    ObjectiveTimeMostinGame: { type: GraphQLInt, },
-    SoloKillsMostinGame: { type: GraphQLInt, },
-    OffensiveAssistsMostinGame: { type: GraphQLInt },
+    eliminationsMostInLife: { type: GraphQLInt },
+    allDamageDoneMostInLife: { type: GraphQLInt },
+    killStreakBest: { type: GraphQLInt, },
+    allDamageDoneMostInGame: { type: GraphQLInt, },
+    eliminationsMostInGame: { type: GraphQLInt, },
+    finalBlowsMostInGame: { type: GraphQLInt, },
+    objectiveKillsMostInGame: { type: GraphQLInt, },
+    objectiveTimeMostInGame: { type: GraphQLInt, },
+    soloKillsMostInGame: { type: GraphQLInt, },
+    offensiveAssistsMostInGame: { type: GraphQLInt },
   },
 });
 
 const Average = new GraphQLObjectType({
   name: 'Average',
   fields: {
-    AllDamageDoneAvgper10Min: { type: GraphQLFloat },
+    allDamageDoneAvgPer10Min: { type: GraphQLFloat },
   },
 });
 
 const MatchAwards = new GraphQLObjectType({
   name: 'MatchAwards',
   fields: {
-    MedalsBronze: { type: GraphQLInt, },
-    MedalsSilver: { type: GraphQLInt, },
-    MedalsGold: { type: GraphQLInt, },
-    Medals: { type: GraphQLInt, },
-    Cards: { type: GraphQLInt },
+    medalsBronze: { type: GraphQLInt, },
+    medalsSilver: { type: GraphQLInt, },
+    medalsGold: { type: GraphQLInt, },
+    medals: { type: GraphQLInt, },
+    cards: { type: GraphQLInt },
   },
 });
 
 const Game = new GraphQLObjectType({
   name: 'Game',
   fields: {
-    TimePlayed: { type: GraphQLInt, },
-    GamesPlayed: { type: GraphQLInt, },
-    GamesWon: { type: GraphQLInt, },
-    ObjectiveTime: { type: GraphQLFloat, },
-    TimeSpentonFire: { type: GraphQLFloat, },
-    WinPercentage: { type: GraphQLFloat },
+    timePlayed: { type: GraphQLInt, },
+    gamesPlayed: { type: GraphQLInt, },
+    gamesWon: { type: GraphQLInt, },
+    objectiveTime: { type: GraphQLFloat, },
+    timeSpentOnFire: { type: GraphQLFloat, },
+    winPercentage: { type: GraphQLFloat },
   },
 });
 
-const Miscelaneous = new GraphQLObjectType({
-  name: 'Miscelaneous',
+const Miscellaneous = new GraphQLObjectType({
+  name: 'Miscellaneous',
   fields: {
-    MultikillBest: { type: GraphQLInt },
-    GamesTied: { type: GraphQLInt },
-    TimeSpentonFireMostinGame: { type: GraphQLFloat },
-    OffensiveAssistsAvgper10Min: { type: GraphQLFloat },
-    DamageBlockedAvgper10Min: { type: GraphQLFloat },
-    TimeSpentonFireAvgper10Min: { type: GraphQLFloat },
-    SoloKillsAvgper10Min: { type: GraphQLFloat },
-    ObjectiveTimeAvgper10Min: { type: GraphQLFloat },
-    ObjectiveKillsAvgper10Min: { type: GraphQLFloat },
-    FinalBlowsAvgper10Min: { type: GraphQLFloat },
-    EliminationsAvgper10Min: { type: GraphQLFloat },
-    DeathsAvgper10Min: { type: GraphQLFloat },
-    GamesLost: { type: GraphQLInt },
+    multikillBest: { type: GraphQLInt },
+    gamesTied: { type: GraphQLInt },
+    timeSpentOnFireMostInGame: { type: GraphQLFloat },
+    offensiveAssistsAvgPer10Min: { type: GraphQLFloat },
+    damageBlockedAvgPer10Min: { type: GraphQLFloat },
+    timeSpentOnFireAvgPer10Min: { type: GraphQLFloat },
+    soloKillsAvgPer10Min: { type: GraphQLFloat },
+    objectiveTimeAvgPer10Min: { type: GraphQLFloat },
+    objectiveKillsAvgPer10Min: { type: GraphQLFloat },
+    finalBlowsAvgPer10Min: { type: GraphQLFloat },
+    eliminationsAvgPer10Min: { type: GraphQLFloat },
+    deathsAvgPer10Min: { type: GraphQLFloat },
+    gamesLost: { type: GraphQLInt },
   },
 });
 
@@ -108,15 +108,15 @@ const HeroStats = new GraphQLObjectType({
   name: 'HeroStats',
   fields: {
     name: { type: GraphQLString },
-    HeroSpecific: { type: HeroSpecific },
-    Combat: { type: Combat },
-    Assists: { type: Assists },
-    Best: { type: Best },
-    Average: { type: Average },
-    Deaths: { type: GraphQLInt },
-    MatchAwards: { type: MatchAwards },
-    Game: { type: Game },
-    Miscelaneous: { type: Miscelaneous },
+    heroSpecific: { type: HeroSpecific },
+    combat: { type: Combat },
+    assists: { type: Assists },
+    best: { type: Best },
+    average: { type: Average },
+    deaths: { type: GraphQLInt },
+    matchAwards: { type: MatchAwards },
+    game: { type: Game },
+    miscellaneous: { type: Miscellaneous },
     raw: JSONScalar,
   },
 });

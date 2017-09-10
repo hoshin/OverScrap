@@ -21,7 +21,7 @@ Notes :
 
 The general structure of the file is as follows : 
 
-```$json
+```json
 {
     profile:{
         currentSR:<current profile's SR>
@@ -33,11 +33,11 @@ The general structure of the file is as follows :
 ```
 
 Here's an example for one character in the `heroesStats` section
-```$json
+```json
 {
 ...
   Pharah: 
-   { 'Hero Specific': 
+   { 'hero Specific': 
       { 'Rocket Direct Hits': 12,
         'Rocket Direct Hits - Most in Game': 12,
         'Rocket Direct Hits - Average': 90.38 },
@@ -72,7 +72,7 @@ The stats collected also include the `All heroes` section (as seen on the origin
 ## How do I use it ?
 
 ### As a lib in a nodejs app
-```$javascript
+```javascript
 import OverScrap from 'over-scrap'
 
 const overscrap = new OverScrap();
@@ -85,7 +85,7 @@ overscrap.loadDataFromProfile('Hoshin#2365', 'eu', 'competitive')
 ```
 
 ### Using the cli tool
-```$bash
+```bash
 ./bin/overscrap-cli.js <Battle tag> [ region [ game mode ] ]
 #^this'll output the raw JSON parsed from the playoverwatch profile page
 
@@ -109,28 +109,28 @@ For example, if you're a D.Va player and want to track how good of a "deleter/bu
 query {
   statsByHeroName(heroName:"D.Va", mode:"competitive", battleTag:"Hoshin#2365", region:"eu"){
     name
-    Combat {
-        Eliminations
-        FinalBlows
-        SoloKills
-        ObjectiveKills
-        Multikills
-        EnvironmentalKills
-        EliminationsPerLife
+    combat {
+        eliminations
+        finalBlows
+        soloKills
+        objectiveKills
+        multikills
+        environmentalKills
+        eliminationsPerLife
     }
-    Best {
-        EliminationsMostinLife
-        AllDamageDoneMostinLife
-        KillStreakBest
-        EliminationsMostinGame
-        FinalBlowsMostinGame
-        ObjectiveKillsMostinGame
-        SoloKillsMostinGame
+    best {
+        eliminationsMostinLife
+        allDamageDoneMostinLife
+        killStreakBest
+        eliminationsMostinGame
+        finalBlowsMostinGame
+        objectiveKillsMostinGame
+        soloKillsMostinGame
     }
-    Average {
-        AllDamageDoneAvgper10Min
+    average {
+        allDamageDoneAvgper10Min
     }
-    Deaths
+    deaths
   }
 }
 ```
@@ -141,34 +141,32 @@ And then get this kind of result :
   "data": {
     "statsByHeroName": {
       "name": "D.Va",
-      "Combat": {
-        "Eliminations": 1209,
-        "FinalBlows": 474,
-        "SoloKills": 85,
-        "ObjectiveKills": 653,
-        "Multikills": 17,
-        "EnvironmentalKills": 13,
-        "EliminationsPerLife": null
+      "combat": {
+        "eliminations": 1209,
+        "finalBlows": 474,
+        "soloKills": 85,
+        "objectiveKills": 653,
+        "multikills": 17,
+        "environmentalKills": 13,
+        "eliminationsPerLife": null
       },
-      "Best": {
-        "EliminationsMostinLife": 23,
-        "AllDamageDoneMostinLife": 11893,
-        "KillStreakBest": 23,
-        "EliminationsMostinGame": 61,
-        "FinalBlowsMostinGame": 29,
-        "ObjectiveKillsMostinGame": 46,
-        "SoloKillsMostinGame": 6
+      "best": {
+        "eliminationsMostInLife": 23,
+        "allDamageDoneMostInLife": 11893,
+        "killStreakBest": 23,
+        "eliminationsMostInGame": 61,
+        "finalBlowsMostInGame": 29,
+        "objectiveKillsMostInGame": 46,
+        "soloKillsMostInGame": 6
       },
-      "Average": {
-        "AllDamageDoneAvgper10Min": 16.89
+      "average": {
+        "allDamageDoneAvgPer10Min": 16.89
       },
-      "Deaths": 280
+      "deaths": 280
     }
   }
 }
 ```
-
-
 
 To this effect, all hero specific data has been moved into the "hero specific" category (so for example Reinhardt charge kills don't end up un the "best" category but rather in a specific section where you can get all things purely Reinhardt, D.Va, Pharah ...
 
@@ -176,8 +174,8 @@ For example, getting raw stats for D.Va would get you :
 ```graphql
 query {
     statsByHeroName(heroName:"D.Va", mode:"competitive", battleTag:"Hoshin#2365", region:"eu"){
-    
-        HeroSpecific {
+        name
+        heroSpecific {
             raw # Here it's not possible to get autocompletion, just raw data as JSON
         }
     }
@@ -190,20 +188,14 @@ Produces:
   "data": {
     "statsByHeroName": {
       "name": "D.Va",
-      "HeroSpecific": {
+      "heroSpecific": {
         "raw": {
-          "Mechs Called": 253,
-          "Mechs Called - Most in Game": 11,
-          "Damage Blocked - Most in Game": 28847,
-          "Damage Blocked": 569955,
-          "Mech Deaths": 365,
-          "Melee Final Blow - Most in Game": 1,
-          "MechsCalled": 253,
-          "MechsCalledMostinGame": 11,
-          "DamageBlockedMostinGame": 28847,
-          "DamageBlocked": 569955,
-          "MechDeaths": 365,
-          "MeleeFinalBlowMostinGame": 1
+          "mechsCalled": 253,
+          "mechsCalledMostInGame": 11,
+          "damageBlockedMostInGame": 28847,
+          "damageBlocked": 569955,
+          "mechDeaths": 365,
+          "meleeFinalBlowMostInGame": 1
         }
       }
     }
@@ -215,7 +207,8 @@ Whereas doing the same for Reinhardt :
 ```graphql
 query {
     statsByHeroName(heroName:"Reinhardt", mode:"competitive", battleTag:"Hoshin#2365", region:"eu"){
-        HeroSpecific {
+        name
+        heroSpecific {
             raw 
         }
     }
@@ -228,24 +221,16 @@ Produces this :
   "data": {
     "statsByHeroName": {
       "name": "Reinhardt",
-      "HeroSpecific": {
+      "heroSpecific": {
         "raw": {
-          "Damage Blocked": 188695,
-          "Damage Blocked - Most in Game": 25436,
-          "Charge Kills": 44,
-          "Charge Kills - Most in Game": 10,
-          "Fire Strike Kills": 85,
-          "Fire Strike Kills - Most in Game": 18,
-          "Earthshatter Kills": 50,
-          "Earthshatter Kills - Most in Game": 11,
-          "DamageBlocked": 188695,
-          "DamageBlockedMostinGame": 25436,
-          "ChargeKills": 44,
-          "ChargeKillsMostinGame": 10,
-          "FireStrikeKills": 85,
-          "FireStrikeKillsMostinGame": 18,
-          "EarthshatterKills": 50,
-          "EarthshatterKillsMostinGame": 11
+          "damageBlocked": 188695,
+          "damageBlockedMostInGame": 25436,
+          "chargeKills": 44,
+          "chargeKillsMostInGame": 10,
+          "fireStrikeKills": 85,
+          "fireStrikeKillsMostInGame": 18,
+          "earthshatterKills": 50,
+          "earthshatterKillsMostInGame": 11
         }
       }
     }
