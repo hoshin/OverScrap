@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const OverScrap = require('../dist/overScrap.min');
+const OverScrap = require('../dist/overScrap');
 process.env['OVERSCRAP_ENV'] = 'production';
 
 if(process.argv.length < 3){
