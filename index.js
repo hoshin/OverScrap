@@ -13,7 +13,7 @@ class OverScrap {
     };
     const extractStatName = () => {
       return _.get(categoryStatTitleChildren.filter(child => {
-        return child.name === 'span' && child.attribs.class === 'stat-title';
+        return child.attribs.class === 'stat-title';
       }), '[0].children[0].data');
     };
 
