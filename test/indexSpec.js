@@ -5,9 +5,12 @@ import request from 'request-promise';
 import OverScrap from '../index';
 
 describe('Overwatch stats parser', () => {
-  let overScrap;
+  let overScrap, domHelperStub;
+  domHelperStub = {};
   beforeEach(() => {
     overScrap = new OverScrap();
+    overScrap.domHelper = domHelperStub;
+    domHelperStub.getProfileSR = () => '42';
   });
 
   describe('loadRawFromProfile', () => {
@@ -37,9 +40,10 @@ describe('Overwatch stats parser', () => {
         .then(() => {
           // assert
           sinon.assert.calledWithExactly(request.get, { uri: 'https://playoverwatch.com/en-us/career/pc/foo/tag-number' });
-          assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[1], 'bar');
+          assert.equal(overScrap.getHeroListForGameMode.calledOnce, true);
+          assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[0], 'bar');
           assert.deepEqual(overScrap.getHeroStatsForGameMode.getCall(0).args[0], [{ a: 'b' }]);
-          assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[2], 'bar');
+          assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[1], 'bar');
         });
     });
 
@@ -93,23 +97,22 @@ describe('Overwatch stats parser', () => {
       return overScrap.loadRawFromProfile('tag#number', 'foo')
         .then(() => {
           // assert
-          assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[1], 'competitive');
-          assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[2], 'competitive');
+          assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[0], 'competitive');
+          assert.equal(overScrap.getHeroStatsForGameMode.getCall(0).args[1], 'competitive');
         });
     });
   });
 
   describe('appendProfileData', () => {
+
     it('should append the player\'s SR to the `profile` property if present', () => {
       // setup
       const heroesStats = {};
-      const domLookup = sinon.stub().returns({ first: sinon.stub().returns({ text: sinon.stub().returns('42') }) });
+      domHelperStub.getProfileSR = () => 42;
       // action
-      return overScrap.appendProfileData(domLookup, heroesStats)
+      return overScrap.appendProfileData(heroesStats)
         .then(stats => {
           // assert
-          assert.equal(domLookup.calledOnce, true);
-          sinon.assert.calledWithExactly(domLookup, 'div.competitive-rank div');
           assert.equal(stats.profile.currentSR, '42');
         });
     });
@@ -117,9 +120,8 @@ describe('Overwatch stats parser', () => {
     it('should return an object with separated player profile & hero stats data', () => {
       // setup
       const heroesStats = { hero1: { stat: 1 }, hero2: { stat: 2 } };
-      const domLookup = sinon.stub().returns({ first: sinon.stub().returns({ text: sinon.stub().returns('42') }) });
       // action
-      return overScrap.appendProfileData(domLookup, heroesStats)
+      return overScrap.appendProfileData(heroesStats)
         .then(dataToReturn => {
           // assert
           assert.deepEqual(dataToReturn, {
@@ -133,6 +135,7 @@ describe('Overwatch stats parser', () => {
   describe('getHeroListForGameMode', () => {
     it('should reject if the hero list cannot be found', () => {
       // setup
+      domHelperStub.getHeroListForPlayerAndGameMode = () => undefined;
 
       // action
       return overScrap.getHeroListForGameMode(() => {
@@ -149,55 +152,26 @@ describe('Overwatch stats parser', () => {
 
     it('should map the ids and hero names into an array then resolve it if list exists for the mode', () => {
       // setup
+      domHelperStub.getHeroListForPlayerAndGameMode = () => [
+        {
+          attribs: {
+            value: 'hero id 1',
+            'option-id': 'hero name 1'
+          }
+        },
+        {
+          attribs: {
+            value: 'hero id 2',
+            'option-id': 'hero name 2'
+          }
+        }];
 
       // action
-      return overScrap.getHeroListForGameMode(() => {
-        return [{
-          children: [{ attribs: { value: 'hero id 1', 'option-id': 'hero name 1' } }, {
-            attribs: {
-              value: 'hero id 2',
-              'option-id': 'hero name 2'
-            }
-          }]
-        }];
-      })
+      return overScrap.getHeroListForGameMode()
         .then(data => {
           // assert
           assert.deepEqual(data, [{ name: 'hero name 1', id: 'hero id 1' }, { name: 'hero name 2', id: 'hero id 2' }]);
         });
-    });
-  });
-
-  describe('getCategoryName', () => {
-    it('should return "Unknown" if category cannot be parsed', () => {
-      // setup
-      // action
-      const actual = overScrap.getCategoryName(null);
-      // assert
-      assert.equal(actual, 'Unknown');
-    });
-
-    it('should return the category name if we find it in the DOM', () => {
-      // setup
-      const statsCategories = {
-        foo: {
-          children: [{
-            children: [{
-              children: [{
-                children: [{
-                  name: 'span',
-                  attribs: { class: 'stat-title' },
-                  children: [{ data: 'Category name' }]
-                }]
-              }]
-            }]
-          }]
-        }
-      };
-      // action
-      const actual = overScrap.getCategoryName(statsCategories, 'foo');
-      // assert
-      assert.equal(actual, 'Category name');
     });
   });
 
@@ -220,9 +194,12 @@ describe('Overwatch stats parser', () => {
 
     it('should return hero stats data aggregated by categories if hero has a name and stats', () => {
       // setup
-      sinon.stub(overScrap, 'getCategoryName').returns('CustomCategory');
+      domHelperStub.getCategoryName = () => 'CustomCategory';
+      domHelperStub.getStatsInCategoryForHero = () => [{ bar: 'baz' }];
+      domHelperStub.getStatName = () => 'bar';
+      domHelperStub.getStatValue = () => 'baz';
       // action
-      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{ children: [{}, { children: [{ children: [{ children: [{ data: 'bar' }] }, { children: [{ data: 'baz' }] }] }] }] }]);
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
       // assert
       assert.deepEqual(actual, { name: 'foo', stats: { CustomCategory: { bar: 'baz' } } });
     });
@@ -231,6 +208,7 @@ describe('Overwatch stats parser', () => {
   describe('getHeroStatsForGameMode', () => {
     it('should reject if at least one hero stats computation fails', () => {
       // setup
+      domHelperStub.getStatsContainerForHeroAndGameMode = () => {};
       sinon.stub(overScrap, 'computeStatsByHero').throws(new Error('Could not parse hero data'));
       // action
       return overScrap.getHeroStatsForGameMode([{}], () => {

@@ -6,36 +6,10 @@ const _ = require('lodash');
 const DEFAULT_REGION = 'eu';
 const DEFAULT_GAME_MODE = 'competitive';
 
+const OVERWATCH_URL_PREFIX = 'https://playoverwatch.com/en-us/career/pc/';
+
 class OverScrap {
-  getCategoryName(statsCategories, statKey) {
-    const getStatTitleTopElement = () => {
-      return _.get(statsCategories, `[${statKey}].children[0].children[0].children[0].children`);
-    };
-    const extractStatName = () => {
-      return _.get(categoryStatTitleChildren.filter(child => {
-        return child.attribs.class === 'stat-title';
-      }), '[0].children[0].data');
-    };
-
-    const categoryStatTitleChildren = getStatTitleTopElement();
-    if (!categoryStatTitleChildren) {
-      return 'Unknown';
-    }
-
-    return extractStatName();
-  }
-
   computeStatsByHero(hero, statsCategories) {
-    const getStatsInCategoryForHero = statKey => {
-      return _.get(statsCategories, `[${statKey}].children[1].children`, []);
-    };
-    const getStatName = statCategory => {
-      return statCategory.children[0].children[0].data;
-    };
-    const getStatValue = statCategory => {
-      return statCategory.children[1].children[0].data;
-    };
-
     if (!statsCategories.length || !hero.name) {
       return null;
     }
@@ -44,10 +18,10 @@ class OverScrap {
       name: hero.name,
       stats: statsCategories
         .reduce((statsCategoryByHero, stat, statKey) => {
-          statsCategoryByHero[this.getCategoryName(statsCategories, statKey)] =
-            getStatsInCategoryForHero(statKey)
+          statsCategoryByHero[this.domHelper.getCategoryName(statsCategories, statKey)] =
+            this.domHelper.getStatsInCategoryForHero(statsCategories, statKey)
               .reduce((singleStatsByHero, statCategory) => {
-                singleStatsByHero[getStatName(statCategory)] = getStatValue(statCategory);
+                singleStatsByHero[this.domHelper.getStatName(statCategory)] = this.domHelper.getStatValue(statCategory);
                 return singleStatsByHero;
               }, {});
           return statsCategoryByHero;
@@ -55,13 +29,10 @@ class OverScrap {
     };
   }
 
-  getHeroListForGameMode($, gameMode) {
-    const getHeroListForPlayerAndGameMode = () => {
-      return $(`div#${gameMode} section div div [data-js="career-select"][data-group-id="stats"]`)[0].children;
-    };
+  getHeroListForGameMode(gameMode) {
     return new Promise((resolve, reject) => {
       try {
-        const heroList = getHeroListForPlayerAndGameMode()
+        const heroList = this.domHelper.getHeroListForPlayerAndGameMode(gameMode)
           .map(option => ({
             id: option.attribs.value,
             name: option.attribs['option-id']
@@ -75,13 +46,9 @@ class OverScrap {
 
   // no specific error handling if computeStatsByHero fails, as it'd mean
   // that the hero listing is not consistent w/ the available data
-  getHeroStatsForGameMode(heroes, $, gameMode) {
-    const getStatsContainerForHeroAndGameMode = hero => {
-      return $(`div#${gameMode} section div [data-group-id="stats"][data-category-id="${hero.id}"] div div.card-stat-block table.data-table`).toArray();
-    };
-
+  getHeroStatsForGameMode(heroes, gameMode) {
     return Promise.map(heroes, hero => {
-      return this.computeStatsByHero(hero, getStatsContainerForHeroAndGameMode(hero));
+      return this.computeStatsByHero(hero, this.domHelper.getStatsContainerForHeroAndGameMode(hero, gameMode));
     })
       .then(data => {
         return data.reduce((acc, hero) => {
@@ -91,8 +58,8 @@ class OverScrap {
       });
   }
 
-  appendProfileData($, heroesStats) {
-    const currentSR = $('div.competitive-rank div').first().text();
+  appendProfileData(heroesStats) {
+    const currentSR = this.domHelper.getProfileSR();
     return new Promise(resolve => {
       resolve({
         profile: { currentSR },
@@ -107,14 +74,14 @@ class OverScrap {
       return Promise.reject(new Error('Invalid tag'));
     }
     return request.get({
-      uri: `https://playoverwatch.com/en-us/career/pc/${region || DEFAULT_REGION}/${tagSplit[0]}-${tagSplit[1]}`
+      uri: `${OVERWATCH_URL_PREFIX}${region || DEFAULT_REGION}/${tagSplit[0]}-${tagSplit[1]}`
     })
       .then(dom => {
         const actualGameMode = gameMode || DEFAULT_GAME_MODE;
-        const $ = cheerio.load(dom);
-        return this.getHeroListForGameMode($, actualGameMode)
-          .then(heroesList => this.getHeroStatsForGameMode(heroesList, $, actualGameMode))
-          .then(heroesStats => this.appendProfileData($, heroesStats));
+        this.domHelper = require('./helpers/domHelper').DomHelper(cheerio.load(dom));
+        return this.getHeroListForGameMode(actualGameMode)
+          .then(heroesList => this.getHeroStatsForGameMode(heroesList, actualGameMode))
+          .then(heroesStats => this.appendProfileData(heroesStats));
       });
   }
 

@@ -37,7 +37,7 @@ class OverScrapServer {
                 assists: rawHeroStats.assists,
                 best: rawHeroStats.best,
                 average: rawHeroStats.average,
-                deaths: rawHeroStats.deaths.deaths,
+                deaths: rawHeroStats.deaths ? rawHeroStats.deaths.deaths : null,
                 matchAwards: rawHeroStats.matchAwards,
                 game: rawHeroStats.game,
                 miscellaneous: rawHeroStats.miscellaneous,
