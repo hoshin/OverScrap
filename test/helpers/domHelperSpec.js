@@ -1,4 +1,4 @@
-/*global it describe beforeEach afterEach*/
+/*global it describe beforeEach*/
 import { assert } from 'chai';
 import DomHelper from '../../helpers/domHelper';
 
