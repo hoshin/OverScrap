@@ -41,6 +41,7 @@ class OverScrapServer {
                 matchAwards: rawHeroStats.matchAwards,
                 game: rawHeroStats.game,
                 miscellaneous: rawHeroStats.miscellaneous,
+                kdr: rawHeroStats.kdr,
                 raw:data,
               };
             });
