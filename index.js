@@ -14,7 +14,7 @@ class OverScrap {
       return null;
     }
 
-    return {
+    const singleHeroStats = {
       name: hero.name,
       stats: statsCategories
         .reduce((statsCategoryByHero, stat, statKey) => {
@@ -27,6 +27,37 @@ class OverScrap {
           return statsCategoryByHero;
         }, {})
     };
+
+    _.forEach(singleHeroStats.stats, statCategory => {
+      _.forEach(statCategory, (statValue, key) => {
+        let parsedStatValue;
+        try {
+          if(typeof statValue === 'string'){
+            parsedStatValue = parseFloat(statValue.replace(/,/g, ''));
+          }
+        } finally {
+          if (parsedStatValue || parsedStatValue === 0) {
+            statCategory[key] = parsedStatValue;
+          }
+        }
+      });
+    });
+
+    const heroCombatStats = singleHeroStats.stats.Combat;
+    if (heroCombatStats) {
+      const { Eliminations, Deaths } = heroCombatStats;
+      if (!Deaths) {
+        singleHeroStats.stats.kdr = Eliminations;
+      } else if (!Eliminations) {
+        singleHeroStats.stats.kdr = 0;
+      } else {
+        singleHeroStats.stats.kdr = Math.floor((heroCombatStats.Eliminations / heroCombatStats.Deaths) * 100) / 100;
+      }
+    } else {
+      singleHeroStats.stats.kdr = 0;
+    }
+
+    return singleHeroStats;
   }
 
   getHeroListForGameMode(gameMode) {
@@ -68,9 +99,9 @@ class OverScrap {
     });
   }
 
-  loadRawFromProfile(tag, region, gameMode) {
+  loadDataFromProfile(tag, region, gameMode) {
     let tagSplit;
-    if(!tag || (tagSplit = tag.split('#')).length < 2){
+    if (!tag || (tagSplit = tag.split('#')).length < 2) {
       return Promise.reject(new Error('Invalid tag'));
     }
     return request.get({
@@ -81,28 +112,7 @@ class OverScrap {
         this.domHelper = require('./helpers/domHelper').DomHelper(cheerio.load(dom));
         return this.getHeroListForGameMode(actualGameMode)
           .then(heroesList => this.getHeroStatsForGameMode(heroesList, actualGameMode))
-          .then(heroesStats => this.appendProfileData(heroesStats));
-      });
-  }
-
-  loadDataFromProfile(tag, region, gameMode) {
-    return this.loadRawFromProfile(tag, region, gameMode)
-      .then(rawData => {
-        _.forEach(rawData.heroesStats, heroStats => {
-          _.forEach(heroStats, statCategory => {
-            _.forEach(statCategory, (statValue, key) => {
-              let parsedStatValue;
-              try {
-                parsedStatValue = parseFloat(statValue.replace(/,/g, ''));
-              } finally {
-                if (parsedStatValue || parsedStatValue === 0) {
-                  statCategory[key] = parsedStatValue;
-                }
-              }
-            });
-          });
-        });
-        return rawData;
+          .then(heroesStats => {console.log(heroesStats); return this.appendProfileData(heroesStats)});
       });
   }
 }

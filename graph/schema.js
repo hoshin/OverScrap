@@ -28,6 +28,7 @@ const Combat = new GraphQLObjectType({
     environmentalKill: { type: GraphQLInt },
     environmentalKills: { type: GraphQLInt },
     eliminationsPerLife: { type: GraphQLFloat },
+    deaths: { type: GraphQLInt },
   },
 });
 
@@ -109,6 +110,7 @@ const HeroStats = new GraphQLObjectType({
   fields: {
     name: { type: GraphQLString },
     heroSpecific: { type: HeroSpecific },
+    kdr: { type: GraphQLFloat },
     combat: { type: Combat },
     assists: { type: Assists },
     best: { type: Best },
@@ -123,7 +125,7 @@ const HeroStats = new GraphQLObjectType({
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
-    name: 'RootQueryType',
+    name: 'statsByHeroName',
     fields: () => ({
       statsByHeroName: {
         type: HeroStats,

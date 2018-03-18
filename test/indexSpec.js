@@ -13,7 +13,7 @@ describe('Overwatch stats parser', () => {
     domHelperStub.getProfileSR = () => '42';
   });
 
-  describe('loadRawFromProfile', () => {
+  describe('loadDataFromProfile', () => {
     let getHeroListForGameModeStub;
     let getHeroStatsForGameModeStub;
     let getRequestStub;
@@ -36,7 +36,7 @@ describe('Overwatch stats parser', () => {
       getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]));
       getHeroStatsForGameModeStub.returns({});
       // action
-      return overScrap.loadRawFromProfile('tag#number', 'foo', 'bar')
+      return overScrap.loadDataFromProfile('tag#number', 'foo', 'bar')
         .then(() => {
           // assert
           sinon.assert.calledWithExactly(request.get, { uri: 'https://playoverwatch.com/en-us/career/pc/foo/tag-number' });
@@ -51,7 +51,7 @@ describe('Overwatch stats parser', () => {
       // setup
 
       // action
-      return overScrap.loadRawFromProfile(undefined, 'foo', 'bar')
+      return overScrap.loadDataFromProfile(undefined, 'foo', 'bar')
         .then(() => {
           assert.fail('using a wrongly formatted tag should reject');
         })
@@ -65,7 +65,7 @@ describe('Overwatch stats parser', () => {
       // setup
 
       // action
-      return overScrap.loadRawFromProfile('tag', 'foo', 'bar')
+      return overScrap.loadDataFromProfile('tag', 'foo', 'bar')
         .then(() => {
           assert.fail('using a wrongly formatted tag should reject');
         })
@@ -81,7 +81,7 @@ describe('Overwatch stats parser', () => {
       getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]));
       getHeroStatsForGameModeStub.returns({});
       // action
-      return overScrap.loadRawFromProfile('tag#number', null, 'bar')
+      return overScrap.loadDataFromProfile('tag#number', null, 'bar')
         .then(() => {
           // assert
           sinon.assert.calledWithExactly(request.get, { uri: 'https://playoverwatch.com/en-us/career/pc/eu/tag-number' });
@@ -94,7 +94,7 @@ describe('Overwatch stats parser', () => {
       getHeroListForGameModeStub.returns(Promise.resolve([{ a: 'b' }]));
       getHeroStatsForGameModeStub.returns({});
       // action
-      return overScrap.loadRawFromProfile('tag#number', 'foo')
+      return overScrap.loadDataFromProfile('tag#number', 'foo')
         .then(() => {
           // assert
           assert.equal(overScrap.getHeroListForGameMode.getCall(0).args[0], 'competitive');
@@ -176,6 +176,12 @@ describe('Overwatch stats parser', () => {
   });
 
   describe('computeStatsByHero', () => {
+    let getCategoryNameStub;
+    beforeEach(() => {
+      getCategoryNameStub = sinon.stub();
+      domHelperStub.getCategoryName = getCategoryNameStub;
+    });
+
     it('should return null if statsCategories array is empty', () => {
       // setup
       // action
@@ -201,14 +207,177 @@ describe('Overwatch stats parser', () => {
       // action
       const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
       // assert
-      assert.deepEqual(actual, { name: 'foo', stats: { CustomCategory: { bar: 'baz' } } });
+      assert.deepEqual(actual, { name: 'foo', stats: { kdr: 0, CustomCategory: { bar: 'baz' } } });
+    });
+
+    it('should compute the a K/D ratio of 5.53 if target hero has combat stats & made 2564 elims for 463 deaths', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ DeathsNode: 'data' }, { EliminationsNode: 'otherData' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      domHelperStub.getCategoryName = sinon.stub().returns('Combat');
+
+      domHelperStub.getStatName.withArgs({ DeathsNode: 'data' }).returns('Deaths');
+      domHelperStub.getStatName.withArgs({ EliminationsNode: 'otherData' }).returns('Eliminations');
+      domHelperStub.getStatValue.withArgs({ DeathsNode: 'data' }).returns(463);
+      domHelperStub.getStatValue.withArgs({ EliminationsNode: 'otherData' }).returns(2564);
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+
+      // assert
+      assert.strictEqual(actual.stats.kdr, 5.53);
+    });
+
+    it('should compute the a K/D ratio of 42 if target hero has combat stats & made 42 elims for 0 deaths', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ DeathsNode: 'data' }, { EliminationsNode: 'otherData' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      domHelperStub.getCategoryName = sinon.stub().returns('Combat');
+
+      domHelperStub.getStatName.withArgs({ DeathsNode: 'data' }).returns('Deaths');
+      domHelperStub.getStatName.withArgs({ EliminationsNode: 'otherData' }).returns('Eliminations');
+      domHelperStub.getStatValue.withArgs({ DeathsNode: 'data' }).returns(0);
+      domHelperStub.getStatValue.withArgs({ EliminationsNode: 'otherData' }).returns(42);
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+
+      // assert
+      assert.strictEqual(actual.stats.kdr, 42);
+    });
+
+    it('should compute the a K/D ratio of 0 if target hero has combat stats & made undef elims for 42 deaths', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ DeathsNode: 'data' }, { EliminationsNode: 'otherData' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      domHelperStub.getCategoryName = sinon.stub().returns('Combat');
+
+      domHelperStub.getStatName.withArgs({ DeathsNode: 'data' }).returns('Deaths');
+      domHelperStub.getStatName.withArgs({ EliminationsNode: 'otherData' }).returns('Eliminations');
+      domHelperStub.getStatValue.withArgs({ DeathsNode: 'data' }).returns(42);
+      domHelperStub.getStatValue.withArgs({ EliminationsNode: 'otherData' });
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+
+      // assert
+      assert.strictEqual(actual.stats.kdr, 0);
+    });
+
+    it('should compute the a K/D ratio of 0 if target hero has no combat stats', () => {
+      // setup
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+
+      // assert
+      assert.strictEqual(actual.stats.kdr, 0);
+    });
+
+    it('should not alter pure text data', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ SomeTextStatNode: 'data' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      getCategoryNameStub.returns('SomeTextStatCategory');
+
+      domHelperStub.getStatName.withArgs({ SomeTextStatNode: 'data' }).returns('SomeTextStat');
+      domHelperStub.getStatValue.withArgs({ SomeTextStatNode: 'data' }).returns('some data that cannot be converted to an int or float');
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+      // assert
+      assert.deepEqual(actual, {
+        name: 'foo',
+        stats: {
+          SomeTextStatCategory: {
+            SomeTextStat: 'some data that cannot be converted to an int or float',
+          },
+          kdr: 0
+        }
+      });
+    });
+
+    it('should parse as floats strings that are only digits', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ SomeIntegerDataNode: 'data' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      getCategoryNameStub.returns('SomeTextStatCategory');
+
+      domHelperStub.getStatName.withArgs({ SomeIntegerDataNode: 'data' }).returns('SomeIntegerData');
+      domHelperStub.getStatValue.withArgs({ SomeIntegerDataNode: 'data' }).returns('42100');
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+      // assert
+      assert.deepEqual(actual, {
+        name: 'foo',
+        stats: {
+          SomeTextStatCategory: {
+            SomeIntegerData: 42100,
+          },
+          kdr: 0
+        }
+      });
+    });
+
+    it('should parse as floats strings that are integers formatted the american way (with a comma)', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ SomeIntegerDataNode: 'data' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      getCategoryNameStub.returns('SomeTextStatCategory');
+
+      domHelperStub.getStatName.withArgs({ SomeIntegerDataNode: 'data' }).returns('SomeIntegerData');
+      domHelperStub.getStatValue.withArgs({ SomeIntegerDataNode: 'data' }).returns('42,240');
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+      // assert
+      assert.deepEqual(actual, {
+        name: 'foo',
+        stats: {
+          SomeTextStatCategory: {
+            SomeIntegerData: 42240,
+          },
+          kdr: 0
+        }
+      });
+    });
+
+    it('should set properties which value is zero as 0 instead of "0"', () => {
+      // setup
+      domHelperStub.getStatsInCategoryForHero = () => [{ SomeIntegerDataNode: 'data' }];
+      domHelperStub.getStatName = sinon.stub();
+      domHelperStub.getStatValue = sinon.stub();
+      getCategoryNameStub.returns('SomeTextStatCategory');
+
+      domHelperStub.getStatName.withArgs({ SomeIntegerDataNode: 'data' }).returns('SomeIntegerData');
+      domHelperStub.getStatValue.withArgs({ SomeIntegerDataNode: 'data' }).returns('0');
+
+      // action
+      const actual = overScrap.computeStatsByHero({ name: 'foo' }, [{}]);
+      // assert
+      assert.deepEqual(actual, {
+        name: 'foo',
+        stats: {
+          SomeTextStatCategory: {
+            SomeIntegerData: 0,
+          },
+          kdr: 0
+        }
+      });
     });
   });
 
   describe('getHeroStatsForGameMode', () => {
     it('should reject if at least one hero stats computation fails', () => {
       // setup
-      domHelperStub.getStatsContainerForHeroAndGameMode = () => {};
+      domHelperStub.getStatsContainerForHeroAndGameMode = () => {
+      };
       sinon.stub(overScrap, 'computeStatsByHero').throws(new Error('Could not parse hero data'));
       // action
       return overScrap.getHeroStatsForGameMode([{}], () => {
@@ -241,120 +410,6 @@ describe('Overwatch stats parser', () => {
         .then(data => {
           // assert
           assert.deepEqual(data, { foo: { bar: 'baz' } });
-        });
-    });
-  });
-
-  describe('loadDataFromProfile', () => {
-    let loadRawFromProfileStub;
-    beforeEach(() => {
-      loadRawFromProfileStub = sinon.stub(overScrap, 'loadRawFromProfile');
-    });
-    it('should not alter pure text data', () => {
-      // setup
-      loadRawFromProfileStub.resolves({
-        heroesStats: {
-          'ALL HEROES': {
-            StatCategory: {
-              SomeTextStat: 'some data that cannot be converted to an int or float'
-            }
-          }
-        }
-      });
-      // action
-      return overScrap.loadDataFromProfile('tag', 'region', 'gameMode')
-        .then(loadedData => {
-          // assert
-          assert.deepEqual(loadedData, {
-            heroesStats: {
-              'ALL HEROES': {
-                StatCategory: {
-                  SomeTextStat: 'some data that cannot be converted to an int or float'
-                }
-              }
-            }
-          });
-        });
-    });
-
-    it('should parse as floats strings that are only digits', () => {
-      // setup
-      loadRawFromProfileStub.resolves({
-        heroesStats: {
-          'ALL HEROES': {
-            StatCategory: {
-              SomeIntegerData: '42.24'
-            }
-          }
-        }
-      });
-      // action
-      return overScrap.loadDataFromProfile(null, null, null)
-        .then(loadedData => {
-          // assert
-          assert.deepEqual(loadedData, {
-            heroesStats: {
-              'ALL HEROES': {
-                StatCategory: {
-                  SomeIntegerData: 42.24
-                }
-              }
-            }
-          });
-        });
-    });
-
-    it('should parse as floats strings that are integers formatted the american way (with a comma)', () => {
-      // setup
-      loadRawFromProfileStub.resolves({
-        heroesStats: {
-          'ALL HEROES': {
-            StatCategory: {
-              SomeIntegerData: '42,100'
-            }
-          }
-        }
-      });
-      // action
-      return overScrap.loadDataFromProfile(null, null, null)
-        .then(loadedData => {
-          // assert
-          assert.deepEqual(loadedData, {
-            heroesStats: {
-              'ALL HEROES': {
-                StatCategory: {
-                  SomeIntegerData: 42100
-                }
-              }
-            }
-          });
-        });
-    });
-
-    it('should set properties which value is zero as 0 instead of "0"', () => {
-      // setup
-      loadRawFromProfileStub.resolves({
-        heroesStats: {
-          'ALL HEROES': {
-            StatCategory: {
-              SomeIntegerData: '0'
-            }
-          }
-        }
-      });
-      // action
-      return overScrap.loadDataFromProfile(null, null, null)
-        .then(loadedData => {
-          // assert
-          assert.deepEqual(loadedData, {
-            heroesStats: {
-              'ALL HEROES': {
-                StatCategory: {
-                  SomeIntegerData: 0
-                }
-              }
-            }
-          });
         });
     });
   });
