@@ -112,7 +112,7 @@ class OverScrap {
         this.domHelper = require('./helpers/domHelper').DomHelper(cheerio.load(dom));
         return this.getHeroListForGameMode(actualGameMode)
           .then(heroesList => this.getHeroStatsForGameMode(heroesList, actualGameMode))
-          .then(heroesStats => {console.log(heroesStats); return this.appendProfileData(heroesStats)});
+          .then(heroesStats => this.appendProfileData(heroesStats));
       });
   }
 }
