@@ -47,16 +47,16 @@ Here's an example for one character in the `heroesStats` section
         "Damage Done": 2287,
         "Weapon Accuracy": "77%" },
      "Best": 
-      { "Damage Done - Most in Life": 1,733,
+      { "Damage Done - Most in Life": 1733,
         "Weapon Accuracy - Best in Game": "77%",
-        "Damage Done - Most in Game": 2,287,
+        "Damage Done - Most in Game": 2287,
         "Objective Time - Most in Game": "00:14" },
      "Average": 
       { "Deaths - Average": 7.53,
         "Objective Time - Average": "01:47",
         "Damage Done - Average": 17224.04 },
-     "Deaths": { Death: "1", "Environmental Death": 1 },
-     "Match Awards": { "Medals - Silver": 0, "Medals - Gold": 0, Medals: 1 },
+     "Deaths": { "Death": "1", "Environmental Death": 1 },
+     "Match Awards": { "Medals - Silver": 0, "Medals - Gold": 0, "Medals": 1 },
      "Game": 
       { "Time Played": "1 minute",
         "Games Played": 0,
