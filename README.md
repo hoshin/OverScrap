@@ -11,7 +11,7 @@ With OverScrap, you get 2 versions of the same tool :
     * `/api` : Just the "I don't wanna configure a server myself" version of `1.`
     * `/graphql` : Injects some cool features like the ability to filter the data you want. It also regroups "Hero Specific" stats under the same section rather than having it scattered in different sections.
 
-Originally, I wrote this tool to allow me to track very specific stats (like my K/D ratio) without all the clutter existing applications provide
+Originally, I wrote this tool to allow me to track very specific stats (like my K/D ratio) without all the clutter existing applications provide. This tool 1st objective to reflect what is on a player's playoverwatch profile page with as much fidelity as possible, then, to add value by combining the data gathered to come up with composite stats that'll try to add value to the overall service.
 
 Notes : 
 * I'm figuring this as I go so there are probably issues I haven't yet seen, feel free to get in touch w/ me if you'd like sth added / reworked and I'll see what I can do =)
