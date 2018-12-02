@@ -40,7 +40,7 @@
     "graphql-server-core": "^0.7.0",
     "graphql-server-module-graphiql": "^0.7.2",
     "lodash": "^4.17.10",
-    "request": "^2.81.0",
+    "request": "2.88.0",
     "request-promise": "^4.2.1"
   },
   "devDependencies": {
