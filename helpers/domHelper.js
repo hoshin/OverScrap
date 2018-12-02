@@ -3,6 +3,10 @@ const _ = require('lodash');
 class DomHelper {
   constructor(domRef) {
     this.$ = domRef;
+    const emptyProfile = this.$('#site section div h1.u-align-center').first().text();
+    if(emptyProfile === 'Profile Not Found'){
+      throw new Error('Target profile not found. It either does not exist at all or is private.');
+    }
   }
 
   getHeroListForPlayerAndGameMode(gameMode) {
