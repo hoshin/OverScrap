@@ -63,10 +63,10 @@ describe('getCategoryName', () => {
           }
         };
       });
-      assert.fail('Init-ing DomHelper w/ unattainable profile should throw a specific error')
+      assert.fail('Init-ing DomHelper w/ unattainable profile should throw a specific error');
     } catch (err) {
-    // assert
-      assert.strictEqual(err.message, 'Target profile not found. It either does not exist at all or is private.')
+      // assert
+      assert.strictEqual(err.message, 'Target profile not found. It either does not exist at all or is private.');
     }
   });
 });
