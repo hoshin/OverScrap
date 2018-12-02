@@ -21,7 +21,7 @@ var DomHelper = function () {
   }, {
     key: 'getStatsContainerForHeroAndGameMode',
     value: function getStatsContainerForHeroAndGameMode(hero, gameMode) {
-      return this.$('div#' + gameMode + ' section div [data-group-id="stats"][data-category-id="' + hero.id + '"] div div.card-stat-block table.data-table').toArray();
+      return this.$('div#' + gameMode + ' section div [data-group-id="stats"][data-category-id="' + hero.id + '"] div div.card-stat-block table.DataTable').toArray();
     }
   }, {
     key: 'getProfileSR',
